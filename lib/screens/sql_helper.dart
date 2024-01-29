@@ -7,31 +7,63 @@ class SQLHelper {
   static Future<void> createTables(sql.Database database) async {
     await database.execute("""CREATE TABLE penyetor(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        title TEXT,
-        description TEXT,
-        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        nama TEXT,
+        description TEXT
       )
       """);
     await database.execute("""CREATE TABLE daftarkategori(
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         kategori TEXT NOT NULL
       )
       """);
     await database.execute("""CREATE TABLE daftarsubkategori(
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        idkategori INT NOT NULL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        idkategori INTEGER NOT NULL,
         subkategori TEXT NOT NULL,
         satuan TEXT NOT NULL,
         hargapersatuan INT NOT NULL 
       )
       """);
     await database.execute("""CREATE TABLE setoran(
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        idpenyetor INT NOT NULL,
-        idsubkategori INT NOT NULL,
-        jumlah INT NOT NULL, 
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        idtglsetor INTEGER NOT NULL,
+        idsubkategori INTEGER NOT NULL,
+        jumlah INTEGER NOT NULL
+      )  
+      """);
+    await database.execute("""CREATE TABLE tglsetor(
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        idpenyetor INTEGER NOT NULL,
         createdAt TIMESTAMP NOT NULL
       )  
+      """);
+    await database.rawInsert("""INSERT INTO tglsetor (id, idpenyetor, createdAt) VALUES
+        (1, 2, '2024-01-29 00:05:01'),
+        (2, 3, '2024-01-29 00:05:01'),
+        (3, 8, '2024-01-29 00:05:01'),
+        (4, 4, '2024-01-29 00:05:01'),
+        (5, 5, '2024-01-29 00:05:01');
+      """);
+    await database.rawInsert("""INSERT INTO setoran (id, idtglsetor, idsubkategori, jumlah) VALUES
+        (1, 1, 3, 100),
+        (2, 1, 4, 550),
+        (3, 2, 4, 120),
+        (4, 2, 12, 300),
+        (5, 3, 1, 100),
+        (6, 4, 2, 120),
+        (7, 5, 7, 130);
+      """);
+    await database.rawInsert("""INSERT INTO penyetor (id, nama, description) VALUES
+        (1, 'Ayu', 'CSJ 1'),
+        (2, 'Dinda', 'CSJ 2'),
+        (3, 'Wulan', 'CSJ 6'),
+        (4, 'Santi', 'CSJ 9'),
+        (5, 'Dewi', 'CSJ 13'),
+        (6, 'Wardhani', 'CSJ 17'),
+        (7, 'Susan', 'CSJ 24'),
+        (8, 'Yanti', 'CSJ 25'),
+        (9, 'Ningsih', 'CSJ 26'),
+        (10, 'Nabila', 'CSJ 27');
       """);
     await database.rawInsert("""INSERT INTO daftarkategori (id, kategori) VALUES
         (1, 'Metal'),
@@ -92,7 +124,7 @@ class SQLHelper {
       """);
   }
 // id: the id of a item
-// title, description: name and description of your activity
+// nama, description: name and description of your activity
 // created_at: the time that the item was created. It will be automatically handled by SQLite
 
   static Future<sql.Database> db() async {
@@ -105,15 +137,25 @@ class SQLHelper {
     );
   }
 
-  // Create new item (journal)
-  static Future<int> createItem(String title, String? descrption) async {
+  // tambah tglsetor
+  static Future<int> createItem(int idpenyetor) async {
     final db = await SQLHelper.db();
-
-    final data = {'title': title, 'description': descrption};
-    final id = await db.insert('penyetor', data,
+    final data = {'idpenyetor': idpenyetor, 'createdAt': DateTime.now().toString()};
+    final id = await db.insert('tglsetor', data,
         conflictAlgorithm: sql.ConflictAlgorithm.replace);
     return id;
   }
+
+  // // Create new item (journal)
+  // static Future<int> createItem(String nama, String? descrption) async {
+  //   final db = await SQLHelper.db();
+  //
+  //   final data = {'nama': nama, 'description': descrption};
+  //   final id = await db.insert('penyetor', data,
+  //       conflictAlgorithm: sql.ConflictAlgorithm.replace);
+  //   return id;
+  // }
+
 
   // Read all penyetor (journals)
   static Future<List<Map<String, dynamic>>> getItems() async {
@@ -121,7 +163,7 @@ class SQLHelper {
     return db.query('penyetor', orderBy: "id");
   }
 
-  // Ambil setoran
+  // Ambil kategori
   static Future<List<Map<String, dynamic>>> getKategori() async {
     final db = await SQLHelper.db();
     return db.query('daftarkategori', orderBy: "id");
@@ -132,9 +174,20 @@ class SQLHelper {
     return db.query('daftarsubkategori', orderBy: "id");
   }
 
+  static Future<List<Map<String, dynamic>>> getJumlah() async {
+    final db = await SQLHelper.db();
+    return db.query('setoran', orderBy: "id");
+  }
+
   static Future<List<Map<String, dynamic>>> getSetoran() async {
     final db = await SQLHelper.db();
     return db.query('setoran', orderBy: "id");
+  }
+
+  // Ambil nama di daftar setoran
+  static Future<List<Map<String, dynamic>>> getTglsetor() async {
+    final db = await SQLHelper.db();
+    return db.query('tglsetor', orderBy: "createdAt");
   }
 
   // Read a single item by id
@@ -146,13 +199,12 @@ class SQLHelper {
 
   // Update an item by id
   static Future<int> updateItem(
-      int id, String title, String? descrption) async {
+      int id, String nama) async {
     final db = await SQLHelper.db();
 
     final data = {
-      'title': title,
-      'description': descrption,
-      'createdAt': DateTime.now().toString()
+      'nama': nama,
+
     };
 
     final result =
@@ -164,9 +216,6 @@ class SQLHelper {
   static Future<int> updateSetoran(
       int idpenyetor, int idsubkategori, int jumlah) async {
     final db = await SQLHelper.db();
-    print(idpenyetor);
-    print(idsubkategori);
-    print(jumlah);
     final data = {
       'idpenyetor': idpenyetor,
       'idsubkategori': idsubkategori,
@@ -198,9 +247,9 @@ class SQLHelper {
   static Future<void> deleteItem(int id) async {
     final db = await SQLHelper.db();
     try {
-      await db.delete("penyetor", where: "id = ?", whereArgs: [id]);
+      await db.delete("tglsetor", where: "id = ?", whereArgs: [id]);
     } catch (err) {
-      debugPrint("Something went wrong when deleting an item: $err");
+      debugPrint("Terjadi kesalahan ketika menghapus...: $err");
     }
   }
 }

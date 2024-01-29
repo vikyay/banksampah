@@ -1,6 +1,8 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'sql_helper.dart';
-
+import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void main() {
@@ -33,6 +35,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // All journals
   List<Map<String, dynamic>> _journals = [];
+  List<Map<String, dynamic>> _setoran = [];
+  List<Map<String, dynamic>> _jumlah = [];
+  List<Map<String, dynamic>> _tglsetor = [];
 
   bool _isLoading = true;
 
@@ -45,26 +50,64 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  //nama2 di daftar setoran
+  void _refreshNamaPenyetor() async {
+    final data = await SQLHelper.getSetoran();
+    setState(() {
+      _setoran = data;
+      _isLoading = false;
+    });
+  }
+
+  void _refreshJumlah() async {
+    final data = await SQLHelper.getJumlah();
+    setState(() {
+      _jumlah = data;
+      _isLoading = false;
+    });
+  }
+
+  //yang di daftar setoran
+  void _refreshDaftarSetoran() async {
+    final data = await SQLHelper.getTglsetor();
+    setState(() {
+      _tglsetor = data;
+      _isLoading = false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _refreshJournals(); // Loading the diary when the app starts
+    _refreshJumlah();
+    _refreshNamaPenyetor();
+    _refreshDaftarSetoran();
   }
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController dropclicked = TextEditingController();
 
   // This function will be triggered when the floating button is pressed
   // It will also be triggered when you want to update an item
   void _showForm(int? id) async {
+
+    //buat dropdown
+    final drop = _journals.map((e) => e['nama']).toList();
+    dropclicked.text = drop.first;
+
+    //cek ubah atau buat
     if (id != null) {
       // id == null -> create new item
       // id != null -> update an existing item
       final existingJournal =
       _journals.firstWhere((element) => element['id'] == id);
-      _titleController.text = existingJournal['title'];
-      _descriptionController.text = existingJournal['description'];
-    }
+      dropclicked.text = _journals[id]['nama'].toString();
+      // _descriptionController.text = existingJournal['description'];
+    };
+
+
 
     showModalBottomSheet(
         context: context,
@@ -82,17 +125,32 @@ class _HomePageState extends State<HomePage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(hintText: 'Nama'),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              TextField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(hintText: 'Catatan'),
-              ),
+                  DropdownButton<String>(
+                    value: dropclicked.text,
+                    isExpanded:true,
+                    icon: const Icon(Icons.arrow_downward),
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.deepPurple),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.deepPurpleAccent,
+                    ),
+                    onChanged: (value) {
+                      // ini pas di klik ganti ke value baru
+
+                      setState(() {
+                        dropclicked.text = value.toString();
+                      });
+                    },
+                    items: drop.map((data) {
+                      return DropdownMenuItem(
+                        value: data.toString(),
+                        child: Text(
+                          data,
+                        ),
+                      );
+                    }).toList(),
+                  ),
               const SizedBox(
                 height: 20,
               ),
@@ -122,18 +180,18 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 
-// Insert a new journal to the database
+// Tambah tglsetor
   Future<void> _addItem() async {
-    await SQLHelper.createItem(
-        _titleController.text, _descriptionController.text);
-    _refreshJournals();
+     await SQLHelper.createItem(
+        _journals.firstWhere((map)=>map['nama'].toString() == dropclicked.text)['id']);
+    _refreshDaftarSetoran();
   }
 
   // Update an existing journal
   Future<void> _updateItem(int id) async {
     await SQLHelper.updateItem(
-        id, _titleController.text, _descriptionController.text);
-    _refreshJournals();
+        id, dropclicked.text);
+    _refreshDaftarSetoran();
   }
 
   // Delete an item
@@ -142,7 +200,7 @@ class _HomePageState extends State<HomePage> {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Berhasil menghapus data!'),
     ));
-    _refreshJournals();
+    _refreshDaftarSetoran();
   }
 
   @override
@@ -170,13 +228,13 @@ class _HomePageState extends State<HomePage> {
         child: CircularProgressIndicator(),
       )
           : ListView.builder(
-        itemCount: _journals.length,
+        itemCount: _tglsetor.length,
         itemBuilder: (context, index) => Card(
           color: Colors.orange,
           margin: const EdgeInsets.all(15),
           child: ListTile(
-              title: Text(_journals[index]['title']),
-              subtitle: Text(_journals[index]['description']),
+              title: Text(_journals[_tglsetor[index].values.elementAt(1)-1]['nama']),
+              subtitle: Text(_tglsetor[index]['createdAt'].toString()),
               trailing: SizedBox(
                 child: Wrap(
                   children: [
@@ -186,7 +244,7 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DetailScreen(title: _journals[index]['title']),
+                            builder: (context) => DetailScreen(nama: _journals[index]['nama']),
                           ),
                         );
                       },
@@ -198,7 +256,8 @@ class _HomePageState extends State<HomePage> {
                     IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () =>
-                          _deleteItem(_journals[index]['id']),
+                        _deleteItem(int.parse(_tglsetor[index]['id'].toString()))
+                        ,
                     ),
                   ],
                 ),
@@ -210,8 +269,8 @@ class _HomePageState extends State<HomePage> {
 }
 
 class DetailScreen extends StatefulWidget {
-  const DetailScreen({Key? key, required this.title}) : super(key: key);
-  final String title;
+  const DetailScreen({Key? key, required this.nama}) : super(key: key);
+  final String nama;
   @override
   State<DetailScreen> createState() => _DetailScreenState();
 }
@@ -231,7 +290,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // refresh sub kategori
   void _refreshDaftarSubKategori() async {
-    final datasub = await SQLHelper.getSetoran();
+    final datasub = await SQLHelper.getSubKategori();
     setState(() {
       _DaftarSubKategori = datasub;
       _isLoading = false;
@@ -266,13 +325,6 @@ class _DetailScreenState extends State<DetailScreen> {
       appBar: AppBar(
         title: Text('Isi jumlah setoran'),
         centerTitle: true,
-          actions: [
-            IconButton(
-              tooltip: 'Balik',
-              icon: const FaIcon(FontAwesomeIcons.floppyDisk),
-              onPressed: () => Navigator.of(context).pop(),
-            )
-          ],
         ),
       body: Center(
         child:
@@ -285,22 +337,23 @@ class _DetailScreenState extends State<DetailScreen> {
               children: [
                 ListTile(
                   leading: Material(
-                    child: Ink(decoration: const ShapeDecoration(color: Colors.lightBlue,shape: CircleBorder(),),
-                      child: IconButton(icon: const FaIcon(FontAwesomeIcons.trash, color: Colors.white), onPressed: () {},),
+                    child: Ink(decoration: const ShapeDecoration(color: Colors.black26, shape: CircleBorder(),),
+                      child: IconButton(icon: const FaIcon(FontAwesomeIcons.recycle, color: Colors.white), onPressed: () {},),
                     ),
                   ),
                       title: Text('Kategori ${_DaftarKategori[index]['kategori']}'),
                 ),
                 const Divider(),
                 ListView.builder(
-                  itemCount: _DaftarSubKategori.where((map)=>map['idkategori'].toString().contains(_DaftarKategori[index]['id'].toString())).length,
+                  //itemCount: _DaftarSubKategori.where((map)=>map['idkategori'].toString().contains(_DaftarKategori[index]['id'].toString())).length,
+                  itemCount: _DaftarSubKategori.where((map)=>map['idkategori'].toString() == _DaftarKategori[index]['id'].toString()).length,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, indexa) {
                     _controller.putIfAbsent('teks${_DaftarSubKategori[indexa]['id']}',
                             () => new TextEditingController());
                     return ListTile(
-                      title: Text(_DaftarSubKategori.where((map)=>map['idkategori'].toString().contains(_DaftarKategori[index]['id'].toString())).elementAt(indexa).values.elementAt(2).toString()),
+                      title: Text(_DaftarSubKategori.where((map)=>map['idkategori'].toString() == _DaftarKategori[index]['id'].toString()).elementAt(indexa).values.elementAt(2).toString()),
                       trailing: SizedBox(
                         width: MediaQuery.of(context).size.width * 0.2,
                         child: TextFormField(
@@ -310,9 +363,12 @@ class _DetailScreenState extends State<DetailScreen> {
                           textAlign: TextAlign.right,
                           controller: _controller[indexa.toInt()+1],
                           initialValue: '0',
-                          if(_DaftarSetoran.[indexa]){}
-
-                          onChanged: (text) =>_updateSetoran(1, _DaftarSubKategori.where((map)=>map['idkategori'].toString().contains(_DaftarKategori[index]['id'].toString())).elementAt(indexa).values.elementAt(0), int.parse(text)),
+                          // initialValue:
+                          // _DaftarSetoran.where((map)=>map['idtglsetor'].toString() == _journals[index]['id'].toString()).elementAt(indexa).values.elementAt(2).toString()
+                          //   //LANJUTKAN DISINI 29-01-2024
+                          //
+                          // ,
+                          onChanged: (text) =>_updateSetoran(1, _DaftarSubKategori.where((map)=>map['idkategori'].toString() == _DaftarKategori[index]['id'].toString()).elementAt(indexa).values.elementAt(0), int.parse(text)),
                         ),
                       ),
                     );
