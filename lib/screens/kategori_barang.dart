@@ -41,17 +41,17 @@ class _KategoriBarangState extends ConsumerState<KategoriBarang> {
                   onPressed: () => Navigator.of(context).pop(),
                 ),
 
-                IconButton(
-                  tooltip: 'Search',
-                  icon: const FaIcon(FontAwesomeIcons.magnifyingGlass),
-                  onPressed: () {},
-                ),
-
-                IconButton(
-                  tooltip: 'Selesai',
-                  icon: const FaIcon(FontAwesomeIcons.check),
-                  onPressed: () {},
-                ),
+                // IconButton(
+                //   tooltip: 'Search',
+                //   icon: const FaIcon(FontAwesomeIcons.magnifyingGlass),
+                //   onPressed: () {},
+                // ),
+                //
+                // IconButton(
+                //   tooltip: 'Selesai',
+                //   icon: const FaIcon(FontAwesomeIcons.check),
+                //   onPressed: () {},
+                // ),
               ],
             ),
           ),
@@ -68,8 +68,7 @@ class ListsWithCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Sample data for three lists
-    List<List<String>> judulKat = [['Metal', 'Besi', 'Tembaga', 'Aluminium', 'Tembaga', 'Babet/Kran', 'Kaleng', 'Seng/Kawat']];
-    List<List<String>> isiKat = [['Metal', 'Besi', 'Tembaga', 'Aluminium', 'Tembaga', 'Babet/Kran', 'Kaleng', 'Seng/Kawat']];
+    List<List<String>> judul = [['Metal', 'Besi', 'Tembaga', 'Aluminium', 'Tembaga', 'Babet/Kran', 'Kaleng', 'Seng/Kawat']];
 
     List<List<String>> listsData = [
       ['Metal', 'Besi', 'Tembaga', 'Aluminium', 'Tembaga', 'Babet/Kran', 'Kaleng', 'Seng/Kawat'],
@@ -100,7 +99,9 @@ class ListsWithCards extends StatelessWidget {
 
 class CardList extends StatelessWidget {
   final List<String> listData;
+
   const CardList({required this.listData});
+
 
   @override
   Widget build(BuildContext context) {
@@ -111,10 +112,10 @@ class CardList extends StatelessWidget {
           ListTile(
             leading: Material(
               child: Ink(decoration: const ShapeDecoration(color: Colors.lightBlue,shape: CircleBorder(),),
-                child: IconButton(icon: const FaIcon(FontAwesomeIcons.trash, color: Colors.white), onPressed: () {},),
+                child: IconButton(icon: const FaIcon(FontAwesomeIcons.recycle, color: Colors.white), onPressed: () {},),
               ),
             ),
-            trailing: IconButton(icon: const FaIcon(FontAwesomeIcons.pencil), onPressed: () {},),
+            // trailing: IconButton(icon: const FaIcon(FontAwesomeIcons.pencil), onPressed: () {},),
             title: Text('Kategori ${listData[0]}'),
           ),
           const Divider(),
@@ -125,7 +126,7 @@ class CardList extends StatelessWidget {
             itemBuilder: (context, index) {
               return ListTile(
                 title: Text(listData[index]),
-                trailing: IconButton(icon: const FaIcon(FontAwesomeIcons.pencil), onPressed: () {},),
+                // trailing: IconButton(icon: const FaIcon(FontAwesomeIcons.pencil), onPressed: () {},),
               );
             },
           ),

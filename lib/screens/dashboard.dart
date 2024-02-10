@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:banksampah/config/config.dart';
-import 'package:banksampah/screens/daftar.dart';
+import 'package:banksampah/screens/daftar_baru.dart';
 import 'package:banksampah/screens/pengaturan.dart';
+import 'package:banksampah/screens/laporanbulanan.dart';
+import 'package:banksampah/screens/kategori_barang.dart';
+import 'package:banksampah/database/sql_helper.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
-  static Dashboard builder(
-      BuildContext context,
-      GoRouterState state,
-      ) =>
-      const Dashboard();
   const Dashboard({super.key});
 
   @override
@@ -61,7 +57,7 @@ class DashboardDetail extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     const Text(
-                      'APLIKASI',
+                      'APLIKASI BANK SAMPAH',
                       style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: 12.0,
@@ -69,10 +65,10 @@ class DashboardDetail extends StatelessWidget {
                           color: Color(0xFF8AC7A4)),
                     ),
                     const Text(
-                      'Bank Sampah',
+                      'CSJ',
                       style: TextStyle(
                           fontFamily: 'Montserrat',
-                          fontSize: 45.0,
+                          fontSize: 41.0,
                           fontWeight: FontWeight.w600,
                           color: Colors.white),
                     ),
@@ -86,7 +82,7 @@ class DashboardDetail extends StatelessWidget {
                           color: Color(0xFF8AC7A4)),
                     ),
                     const Text(
-                      'Cluster Sudimara Jombang',
+                      'CSJ Ciputat Tangsel',
                       style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: 25.0,
@@ -147,8 +143,7 @@ class DashboardDetail extends StatelessWidget {
                           onTap: () {
                             Navigator.push(
                               context,
-                              //MaterialPageRoute(builder: (context) => const BreedFormPage()),
-                              MaterialPageRoute(builder: (context) => const Daftar()),
+                              MaterialPageRoute(builder: (context) => const DaftarSetoran()),
                             );
                           },
                           splashColor: Colors.green,
@@ -167,7 +162,12 @@ class DashboardDetail extends StatelessWidget {
 
                       Card(
                         child: InkWell(
-                          onTap: () => context.push(RouteLocation.kategoribrg),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const KategoriBarang()),
+                            );
+                          },
                           splashColor: Colors.green,
                           child: const Column(
                             mainAxisSize: MainAxisSize.min,
@@ -184,7 +184,12 @@ class DashboardDetail extends StatelessWidget {
 
                       Card(
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const Laporan()),
+                            );
+                          },
                           splashColor: Colors.green,
                           child: const Column(
                             mainAxisSize: MainAxisSize.min,
@@ -204,8 +209,7 @@ class DashboardDetail extends StatelessWidget {
                           onTap: () {
                             Navigator.push(
                               context,
-                              //MaterialPageRoute(builder: (context) => const BreedFormPage()),
-                              MaterialPageRoute(builder: (context) => const FirstRoute()),
+                              MaterialPageRoute(builder: (context) => const SecondRoute()),
                             );
                           },
                           splashColor: Colors.green,

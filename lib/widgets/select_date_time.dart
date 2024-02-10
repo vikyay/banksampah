@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:banksampah/providers/providers.dart';
-import 'package:banksampah/utils/utils.dart';
+import 'package:banksampah/widgets/helpers.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
-import 'common_text_field.dart';
 
 class SelectDateTime extends ConsumerWidget {
   const SelectDateTime({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final dateProvider = StateProvider<DateTime>((ref) {
+      return DateTime.now();
+    });
+    final timeProvider = StateProvider.autoDispose<TimeOfDay>((ref) {
+      return TimeOfDay.now();
+    });
     final time = ref.watch(timeProvider);
     final date = ref.watch(dateProvider);
 
@@ -50,8 +54,75 @@ class SelectDateTime extends ConsumerWidget {
       context: context,
       initialTime: TimeOfDay.now(),
     );
+    final timeProvider = StateProvider.autoDispose<TimeOfDay>((ref) {
+      return TimeOfDay.now();
+    });
     if (pickedTime != null) {
       ref.read(timeProvider.notifier).state = pickedTime;
     }
+  }
+}
+
+class SelectDate extends ConsumerWidget {
+  const SelectDate({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dateProvider = StateProvider<DateTime>((ref) {
+      return DateTime.now().subtract(const Duration(days: 10));
+    });
+    final date = ref.watch(dateProvider);
+    return TextField(
+      decoration: InputDecoration(
+          suffixIcon: IconButton(
+            onPressed: () => Helpers.selectDate(context, ref),
+            icon: const FaIcon(FontAwesomeIcons.calendar),
+          ),
+          hintText: Helpers.dateFormatter(date)),
+      readOnly: true,
+    );
+  }
+}
+
+class SelectDateTwo extends ConsumerWidget {
+  const SelectDateTwo({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dateProvider = StateProvider<DateTime>((ref) {
+      return DateTime.now();
+    });
+    final date = ref.watch(dateProvider);
+    return TextField(
+      decoration: InputDecoration(
+          suffixIcon: IconButton(
+            onPressed: () => Helpers.selectDate(context, ref),
+            icon: const FaIcon(FontAwesomeIcons.calendar),
+          ),
+          hintText: Helpers.dateFormatter(date)),
+      readOnly: true,
+    );
+  }
+}
+
+
+class SelectMonth extends ConsumerWidget {
+  const SelectMonth({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dateProvider = StateProvider<DateTime>((ref) {
+      return DateTime.now();
+    });
+    final date = ref.watch(dateProvider);
+    return TextField(
+      decoration: InputDecoration(
+          suffixIcon: IconButton(
+            onPressed: () => Helpers.selectDate(context, ref),
+            icon: const FaIcon(FontAwesomeIcons.calendar),
+          ),
+          hintText: Helpers.dateFormatter(date)),
+      readOnly: true,
+    );
   }
 }
