@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 
 class FileHandleApi {
   // save pdf file function
@@ -22,6 +22,6 @@ class FileHandleApi {
   static Future openFile(File file) async {
     final url = file.path;
 
-    await OpenFile.open(url);
+    await OpenFilex.open(url);
   }
 }

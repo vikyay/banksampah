@@ -33,8 +33,8 @@ class Helpers {
       firstDate: DateTime(2023),
       lastDate: DateTime(2060),
     );
-    // print(pickedDate.toString());
-
+    print(pickedDate.toString());
+    print('su');
     if (pickedDate != null) {
       ref.read(dateProvider.notifier).state = pickedDate;
     }

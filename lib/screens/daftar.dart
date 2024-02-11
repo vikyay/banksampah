@@ -1,421 +1,288 @@
 import 'package:flutter/material.dart';
 import '../database/sql_helper.dart';
 import 'package:intl/intl.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:banksampah/widgets/select_date_time.dart';
-import 'package:banksampah/screens/pdf_api.dart';
-import 'package:banksampah/screens/filehandle_api.dart';
+import 'detilsetoran.dart';
+import 'info.dart';
+import '../bantuan/bantuan.dart';
 
-void daftarku() {
-  runApp(const Daftar());
+void daftar() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: DaftarSetoran(),
+  ));
 }
 
-class Daftar extends StatelessWidget {
-  const Daftar({Key? key}) : super(key: key);
+class DaftarSetoran extends StatefulWidget {
+  const DaftarSetoran({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      // Remove the debug banner
-        debugShowCheckedModeBanner: false,
-        title: 'Daftar Setoran Barang Daur Ulang',
-        theme: ThemeData(
-          primarySwatch: Colors.orange,
-        ),
-        home: const HomePage());
-  }
+  State<DaftarSetoran> createState() => _DaftarSetoranState();
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class _DaftarSetoranState extends State<DaftarSetoran> {
+  List<Map<String, dynamic>> _nasabah = [];
+  List<Map<String, dynamic>> _daftarsetoran = [];
+  String? textkategori;
+  String? textnasabah;
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
+  final TextEditingController _nama = TextEditingController();
+  final TextEditingController _description = TextEditingController();
 
-class _HomePageState extends State<HomePage> {
-  // All journals
-  List<Map<String, dynamic>> _journals = [];
-  List<Map<String, dynamic>> _setoran = [];
-  List<Map<String, dynamic>> _jumlah = [];
-  List<Map<String, dynamic>> _tglsetor = [];
-
-  bool _isLoading = true;
-
-  // penyetor
-  void _refreshJournals() async {
-    final data = await SQLHelper.getItems();
-    setState(() {
-      _journals = data;
-      _isLoading = false;
+  //tambah setoran
+  Future<void> _tambahSetoran(BuildContext context) async {
+    List<String> daftardropdown = [];
+    _nasabah.forEach((element) {
+      daftardropdown.add(element['nama']);
     });
-  }
+    return showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (BuildContext context, setStateSB) {
+          return AlertDialog(
+            title: const Text('Tambah Setoran'),
+            content: SingleChildScrollView(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextField(
+                        onChanged: (value) {
+                          setState(() {
+                            //valueText = value;
+                            // print(value);
+                          });
+                        },
+                        controller: _nama,
+                        decoration: const InputDecoration(hintText: "Nama"),
+                      ),
+                      SelectDate(),
 
-  //nama2 di daftar setoran/tglsetoran
-  void _refreshNamaPenyetor() async {
-    final data = await SQLHelper.getSetoran();
-    setState(() {
-      _setoran = data;
-      _isLoading = false;
-    });
-  }
-
-  void _refreshJumlah() async {
-    final data = await SQLHelper.getJumlah();
-    setState(() {
-      _jumlah = data;
-      _isLoading = false;
-    });
-  }
-
-  //yang di daftar setoran
-  void _refreshDaftarSetoran() async {
-    final data = await SQLHelper.getTglSetor();
-    setState(() {
-      _tglsetor = data;
-      _isLoading = false;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _refreshJournals(); // Loading the diary when the app starts
-    _refreshJumlah();
-    _refreshNamaPenyetor();
-    _refreshDaftarSetoran();
-  }
-
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController dropclicked = TextEditingController();
-
-  // This function will be triggered when the floating button is pressed
-  // It will also be triggered when you want to update an item
-  void _showForm(int? id) async {
-
-    //buat dropdown
-    final drop = _journals.map((e) => e['nama']).toList();
-    dropclicked.text = drop.first;
-
-    //cek ubah atau buat
-    if (id != null) {
-      // id == null -> create new item
-      // id != null -> update an existing item
-      int idtglsetor = _tglsetor[id].values.elementAt(1);
-      dropclicked.text = _journals[_tglsetor[id].values.elementAt(1)-1]['nama'].toString();
-    };
-
-    showModalBottomSheet(
-        context: context,
-        elevation: 5,
-        isScrollControlled: true,
-        builder: (_) => Container(
-          padding: EdgeInsets.only(
-            top: 15,
-            left: 15,
-            right: 15,
-            // this will prevent the soft keyboard from covering the text fields
-            bottom: MediaQuery.of(context).viewInsets.bottom + 120,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-                  DropdownButton<String>(
-                    value: dropclicked.text,
-                    isExpanded:true,
-                    icon: const Icon(Icons.arrow_downward),
-                    elevation: 16,
-                    style: const TextStyle(color: Colors.deepPurple),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.deepPurpleAccent,
-                    ),
-                    onChanged: (value) {
-                      // ini pas di klik ganti ke value baru
-                      setState(() {
-                        dropclicked.text = value.toString();
-                      });
-                    },
-                    items: drop.map((data) {
-                      return DropdownMenuItem(
-                        value: data.toString(),
-                        child: Text(
-                          data,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-              const SizedBox(
-                height: 20,
-              ),
-              const SelectDate(),
-              ElevatedButton(
-                onPressed: () async {
-                  // Save new journal
-                  if (id == null) {
-                    await _addItem();
-                  }
-
-                  //edit masih blm bisa di disable dulu
-                  if (id != null) {
-                    await _updateItem(_tglsetor[id].values.elementAt(1));
-                  }
-
-                  // Clear the text fields
-                  _titleController.text = '';
-                  _descriptionController.text = '';
-
-                  // Close the bottom sheet
-                  if (!mounted) return;
-                  Navigator.of(context).pop();
+                    ])),
+            actions: <Widget>[
+              MaterialButton(
+                color: Colors.red,
+                textColor: Colors.white,
+                child: const Text('BATAL'),
+                onPressed: () {
+                  setState(() {
+                    //codeDialog = valueText;
+                    Navigator.pop(context);
+                  });
                 },
-                child: Text(id == null ? 'Buat' : 'Ubah'),
-              )
-            ],
-          ),
-        ));
-  }
-
-// Tambah tglsetor
-  Future<void> _addItem() async {
-     await SQLHelper.createItem(
-        _journals.firstWhere((map)=>map['nama'].toString() == dropclicked.text)['id']);
-     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-       content: Text('Data ditambahkan!'),
-       duration: const Duration(milliseconds: 1500),
-     ));
-    _refreshDaftarSetoran();
-  }
-
-  // Update an existing journal
-  Future<void> _updateItem(int id) async {
-    await SQLHelper.updateItem(
-        id, dropclicked.text);
-    _refreshDaftarSetoran();
-  }
-
-  // Delete an item
-  void _deleteItem(int id) async {
-    await SQLHelper.deleteItem(id);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Berhasil menghapus data!'),
-      duration: const Duration(milliseconds: 2000),
-    ));
-    _refreshDaftarSetoran();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daftar Setoran'),
-        actions: <Widget>[
-          InkWell(
-            onTap: () {
-              _showForm(null);
-            },
-            child: const Padding(
-              padding: EdgeInsets.all(12),
-              child: Icon(
-                Icons.add,
-                // color: Colors.white,
               ),
-            ),
-          )
-        ],
-      ),
-      body: _isLoading
-          ? const Center(
-        child: CircularProgressIndicator(),
-      )
-          : ListView.builder(
-        itemCount: _tglsetor.length,
-        itemBuilder: (context, index) => Card(
-          color: Colors.orange,
-          margin: const EdgeInsets.all(15),
-          child: ListTile(
-              title: Text(_journals[_tglsetor[index].values.elementAt(1)-1]['nama']),
-              subtitle: Text(_tglsetor[index]['createdAt'].toString()),
-              trailing: SizedBox(
-                child: Wrap(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.list),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailScreen(nama: _journals[index]['nama'], tglsetor_id: _tglsetor[index]['id']),
-                          ),
-                        );
-                      },
-                    ),
-                    // IconButton(
-                    //   icon: const Icon(Icons.edit),
-                    //   onPressed: () => _showForm(_tglsetor[index].values.elementAt(0)-1),
-                    // ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () =>
-                        _deleteItem(int.parse(_tglsetor[index]['id'].toString()))
-                        ,
-                    ),
-                  ],
-                ),
-              )),
-        ),
+              MaterialButton(
+                color: Colors.green,
+                textColor: Colors.white,
+                child: const Text('OK'),
+                onPressed: () {
+                  SQLHelper.tambahNasabah(_nama.text, _description.text);
+                  // _refreshNasabah();
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
-}
 
-class DetailScreen extends StatefulWidget {
-  const DetailScreen({Key? key, required this.nama, required this.tglsetor_id}) : super(key: key);
-  final String nama;
-  final int tglsetor_id;
-  @override
-  State<DetailScreen> createState() => _DetailScreenState();
-}
-class _DetailScreenState extends State<DetailScreen> {
-  List<Map<String, dynamic>> _journals = [];
-  List<Map<String, dynamic>> _DaftarKategori = [];
-  List<Map<String, dynamic>> _DaftarSubKategori = [];
-  List<Map<String, dynamic>> _DaftarSetoran = [];
-  bool _isLoading = true;
-
-    //nama
-  void _refreshJournals() async {
-    final data = await SQLHelper.getItems();
-    setState(() {
-      _journals = data;
-      _isLoading = false;
+  //ambil data
+  void _refresh() async {
+    final data1 = await SQLHelper.getTglSetor();
+    final data2 = await SQLHelper.getNasabah();
+    _daftarsetoran = [];
+    // data1.forEach((element) {_namanasabah.add(data2.firstWhere((e) => e['id'] == element['idpenyetor']).values.elementAt(1).toString());});
+    data1.forEach((e) {
+      var daftar = {
+        'id': e['id'],
+        'idpenyetor': e['idpenyetor'],
+        'penyetor': data2.firstWhere((el) => el['id'] == e['idpenyetor']).values.elementAt(1).toString(),
+        'createdAt': DateFormat("EEEE, d MMMM yyyy - hh:MM", "id_ID")
+            .format(DateTime.parse(e['createdAt'])),
+      };
+      _daftarsetoran.add(daftar);
     });
-  }
-
-  // refresh kategori
-  void _refreshDaftarKategori() async {
-    final data = await SQLHelper.getKategori();
     setState(() {
-      _DaftarKategori = data;
-      _isLoading = false;
+      _daftarsetoran;
     });
-  }
 
-  // refresh sub kategori
-  void _refreshDaftarSubKategori() async {
-    final datasub = await SQLHelper.getSubKategori();
-    setState(() {
-      _DaftarSubKategori = datasub;
-      _isLoading = false;
-    });
-  }
-
-  void _refreshDaftarSetoran() async {
-    final datasub = await SQLHelper.getSetoran();
-    setState(() {
-      _DaftarSetoran = datasub;
-      _isLoading = false;
-    });
   }
 
   @override
   void initState() {
     super.initState();
-    _refreshDaftarKategori(); // Load ketika mulai
-    _refreshDaftarSubKategori(); // Load ketika mulai
-    _refreshDaftarSetoran(); // Load ketika mulai
-    _refreshJournals();
+    //load ketika mulai
+    _refresh();
   }
 
-  // Update setoran
-  Future<void> _updateSetoran(int idpenyetor, int idsubkategori, int jumlah) async {
-    await SQLHelper.updateSetoran(
-        idpenyetor, idsubkategori, jumlah);
-    _refreshDaftarKategori(); // Load ketika mulai
-    _refreshDaftarSubKategori(); // Load ketika mulai
-  }
-
+  @override
   Widget build(BuildContext context) {
-    String? jumlah;
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Detil Setoran'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.print,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              // generate pdf file
-              final pdfFile = await PerNasabahPDF.generate();
-              // opening the pdf file
-              FileHandleApi.openFile(pdfFile);
-            },
-          )
-        ],
-        centerTitle: true,
-        ),
-      body: Center(
-        child:
-        ListView.builder(
-        itemCount: _DaftarKategori.length,
-        itemBuilder: (context, index) {
-          var teks_kategori = _DaftarKategori[index]['kategori'];
-          var id_kategori = _DaftarKategori[index]['id'];
-          return Card(
-            margin: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: Material(
-                    child: Ink(decoration: const ShapeDecoration(color: Colors.black26, shape: CircleBorder(),),
-                      child: IconButton(icon: const FaIcon(FontAwesomeIcons.recycle, color: Colors.white), onPressed: () {},),
-                    ),
-                  ),
-                      title: Text('Kategori ${_DaftarKategori[index]['kategori']}'),
-                ),
-                const Divider(),
-                ListView.builder(
-                  itemCount: _DaftarSubKategori.where((map)=>map['idkategori'].toString() == _DaftarKategori[index]['id'].toString()).length,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, indexa) {
-                    var id_subkategori = _DaftarSubKategori.where((map)=>map['idkategori'].toString() == _DaftarKategori[index]['id'].toString()).elementAt(indexa).values.elementAt(0).toString();
-                    var teks_subkategori = _DaftarSubKategori.where((map)=>map['idkategori'].toString() == _DaftarKategori[index]['id'].toString()).elementAt(indexa).values.elementAt(2).toString();
-                    jumlah = null;
-                    var list_jumlah = _DaftarSetoran.where((map)=>map['idtglsetor'] == widget.tglsetor_id && map['idsubkategori'].toString() == id_subkategori.toString());
-                    if(list_jumlah.isNotEmpty){
-                      jumlah = (list_jumlah.single.values.elementAt(3).toString());
-                    };
-                    return ListTile(
-                      title: Text(teks_subkategori),
-                      trailing: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        child: TextFormField(
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          textAlign: TextAlign.right,
-                          initialValue: jumlah,
-                          onChanged: (text) =>_updateSetoran(_journals.elementAt(_DaftarSetoran.elementAt(widget.tglsetor_id).values.elementAt(1)).values.elementAt(0), int.parse(id_subkategori), int.parse(text)),
-                        ),
+        appBar: AppBar(
+          backgroundColor: Colors.lightGreen,
+          title: RichText(
+            text: const TextSpan(
+              children: <TextSpan>[
+                TextSpan(
+                  text: "Daftar ",
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w400,
+                    shadows: <Shadow>[
+                      Shadow(
+                        offset: Offset(1, 0.5),
+                        // blurRadius: 1.0,
+                        color: Color.fromARGB(150, 255, 255, 255),
                       ),
-                    );
-                  },
+                    ],
+                  ),
+                ),
+                TextSpan(
+                  text: "Setoran",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      shadows: <Shadow>[
+                        Shadow(
+                          offset: Offset(0.0, 1.0),
+                          blurRadius: 1.0,
+                          color: Color.fromARGB(255, 0, 0, 0),
+                        ),
+                      ],
+                  ),
                 ),
               ],
             ),
-          );
+          ),
+          centerTitle: true,
+          actions: <Widget>[
+            Padding(padding: const EdgeInsets.only(right: 15), child: Ink(
+              decoration: const ShapeDecoration(
+                shape: CircleBorder(),
+              ),
+              child: InfoDaftarSetoran(),
+            ))
+
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _tambahSetoran(context);
+          },
+          backgroundColor: Colors.lightGreen,
+          foregroundColor: Colors.white,
+          splashColor: Colors.yellow,
+          child: const Icon(Icons.add),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        body: ListView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            padding: const EdgeInsets.all(8),
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemCount: _daftarsetoran.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Card(
+                  color: Colors.white,
+                  child:
+                  Dismissible(
+                    key: Key(_daftarsetoran[index]['penyetor']),
+                    confirmDismiss: (direction) async {
+                      setState(() {
+                        SQLHelper.hapusTglSetor(_daftarsetoran[index]['id']);
+                        _refresh();
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Dihapus!'),
+                        duration: Duration(milliseconds: 2000),
+                      ));
+                      return Future.value(false);
+                    },
+                    background: Container(
+                      alignment: Alignment.centerLeft,
+                      color: Colors.red,
+                      child: Center(
+                        child: const Row(children: [
+                          Icon(Icons.delete),
+                        ]),
+                      ),
+                    ),
+                    direction: DismissDirection.startToEnd,
+                    secondaryBackground: Container(),
+                    child:
+                      ListTile(
+                        leading: Icon(Icons.receipt),
+                        title: Text(_daftarsetoran[index]['penyetor']),
+                        subtitle: Text(_daftarsetoran[index]['createdAt']),
+                        trailing: Icon(Icons.chevron_right),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetilSetoran(nama: _daftarsetoran[index]['penyetor'], tgl: _daftarsetoran[index]['createdAt'].toString(), tglsetor_id: _daftarsetoran[index]['id']),
+                            ),
+                          );
+                        },
+                      ),
+
+                  )
 
 
-        },
-      )
+              );
+            })
 
-      )
     );
   }
 }
 
+class Tes extends StatelessWidget {
+  const Tes({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pengaturan'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(18.0),
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  //Daftar nasabah
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Column(children: [
+                        Icon(Icons.supervised_user_circle,
+                            color: Colors.white, size: 70.0),
+                        Text("Daftar Nasabah")
+                      ])),
+                  //Daftar kategori
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Column(children: [
+                        Icon(Icons.category_outlined,
+                            color: Colors.white, size: 70.0),
+                        Text("Daftar Kategori")
+                      ])),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

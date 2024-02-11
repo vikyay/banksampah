@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../database/sql_helper.dart';
+import 'info.dart';
 
 void jalankan() {
   runApp(const MaterialApp(
-    title: 'Navigation Basics',
     home: SecondRoute(),
     debugShowCheckedModeBanner: false,
   ));
@@ -245,16 +245,47 @@ class _SecondRouteState extends State<SecondRoute> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pengaturan'),
+        backgroundColor: Colors.deepPurpleAccent,
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        title: RichText(
+          text: const TextSpan(
+            children: <TextSpan>[
+              TextSpan(
+                text: "Pengaturan",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  shadows: <Shadow>[
+                    Shadow(
+                      offset: Offset(0.0, 1.0),
+                      blurRadius: 1.0,
+                      color: Color.fromARGB(255, 0, 0, 0),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          Padding(padding: const EdgeInsets.only(right: 15), child: Ink(
+            decoration: const ShapeDecoration(
+              shape: CircleBorder(),
+            ),
+            child: InfoPengaturan(),
+          ))
+
+        ],
       ),
       body: SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //Daftar Nasabah
-          const SizedBox(height: 15),
           ExpansionTile(
-            leading: const Icon(Icons.person),
+            leading: const Icon(Icons.people_alt),
             title: const Text.rich(
               TextSpan(
                 children: <TextSpan>[
@@ -282,28 +313,39 @@ class _SecondRouteState extends State<SecondRoute> {
                                   _refreshNasabah();
                                 });
                                 ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
+                                    .showSnackBar(const SnackBar(
                                   content: Text('Dihapus!'),
-                                  duration: const Duration(milliseconds: 2000),
+                                  duration: Duration(milliseconds: 2000),
                                 ));
                                 return Future.value(false);
                               },
                               background: Container(
                                 alignment: Alignment.centerLeft,
-                                child: Center(
+                                color: Colors.red,
+                                child: const Center(
                                   child: Row(children: [
                                     Icon(Icons.delete),
                                   ]),
                                 ),
-                                color: Colors.red,
+
                               ),
                               direction: DismissDirection.startToEnd,
                               secondaryBackground: Container(),
                               child: Container(
                                 height: 50,
                                 child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Text(_nasabah[index]['nama']),
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                          text: _nasabah[index]['nama'],
+                                          style: const TextStyle(fontSize: 16)),
+                                    ],
+                                  ),
+                                )
+
+                                  ,
                                 ),
                               ),
                             );
@@ -312,6 +354,9 @@ class _SecondRouteState extends State<SecondRoute> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.deepPurpleAccent),
                           onPressed: () {
                             _tambahNasabah(context);
                           },
@@ -319,6 +364,9 @@ class _SecondRouteState extends State<SecondRoute> {
                         ),
                         const SizedBox(width: 10),
                         ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.deepPurple),
                           onPressed: () {
                             Navigator.pop(context);
                           },
@@ -332,7 +380,6 @@ class _SecondRouteState extends State<SecondRoute> {
             ],
           ),
           //Daftar Kategori
-          const SizedBox(height: 15),
           ExpansionTile(
             leading: const Icon(Icons.category_rounded),
             title: const Text.rich(
@@ -359,7 +406,7 @@ class _SecondRouteState extends State<SecondRoute> {
                             title: Text.rich(
                               TextSpan(
                                 children: <TextSpan>[
-                                  TextSpan(text: _kategori[index]['kategori'], style: TextStyle(fontSize: 21)),
+                                  TextSpan(text: _kategori[index]['kategori'], style: const TextStyle(fontSize: 19)),
                                 ],
                               ),
                             ),
@@ -384,20 +431,21 @@ class _SecondRouteState extends State<SecondRoute> {
                                               _refreshSubKategori();
                                             });
                                             ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
+                                                .showSnackBar(const SnackBar(
                                               content: Text('Dihapus!'),
-                                              duration: const Duration(milliseconds: 2000),
+                                              duration: Duration(milliseconds: 2000),
                                             ));
                                             return Future.value(false);
                                           },
                                           background: Container(
                                             alignment: Alignment.centerLeft,
-                                            child: Center(
+                                            color: Colors.red,
+                                            child: const Center(
                                               child: Row(children: [
                                                 Icon(Icons.delete),
                                               ]),
                                             ),
-                                            color: Colors.red,
+
                                           ),
                                           direction: DismissDirection.startToEnd,
                                           secondaryBackground: Container(),
@@ -405,7 +453,14 @@ class _SecondRouteState extends State<SecondRoute> {
                                             height: 50,
                                             child: Padding(
                                               padding: const EdgeInsets.all(10.0),
-                                              child: Text(teks_subkategori),
+                                              child:
+                                              Text.rich(
+                                                TextSpan(
+                                                  children: <TextSpan>[
+                                                    TextSpan(text: teks_subkategori, style: const TextStyle(fontSize: 16)),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         );
@@ -421,6 +476,9 @@ class _SecondRouteState extends State<SecondRoute> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.deepPurpleAccent),
                         onPressed: () {
                           _tambahKategori(context);
                         },
@@ -428,6 +486,9 @@ class _SecondRouteState extends State<SecondRoute> {
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.deepPurple),
                         onPressed: () {
                           Navigator.pop(context);
                         },
@@ -440,7 +501,6 @@ class _SecondRouteState extends State<SecondRoute> {
             ],
           ),
           //Daftar Identitas Bank
-          const SizedBox(height: 15),
           ExpansionTile(
             leading: const Icon(Icons.supervised_user_circle),
             title: const Text.rich(
@@ -503,6 +563,9 @@ class _SecondRouteState extends State<SecondRoute> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.deepPurpleAccent),
                         onPressed: () {
                           _tambahNasabah(context);
                         },
@@ -510,6 +573,9 @@ class _SecondRouteState extends State<SecondRoute> {
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.deepPurple),
                         onPressed: () {
                           Navigator.pop(context);
                         },

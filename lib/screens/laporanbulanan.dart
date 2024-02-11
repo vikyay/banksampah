@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'filehandle_api.dart';
-import 'pdf_api.dart';
-import 'package:banksampah/widgets/select_date_time.dart';
+import '../bantuan/bantuan.dart';
 import '../database/sql_helper.dart';
 
 void pdfscreen() {
-  runApp(const Laporan());
+  runApp(const LaporanBulanan());
 }
 
-class Laporan extends StatelessWidget {
-  const Laporan({super.key});
+class LaporanBulanan extends StatelessWidget {
+  const LaporanBulanan({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +108,7 @@ class BerandaLaporan extends StatelessWidget {
 }
 
 class PerNasabah extends StatefulWidget {
-  const PerNasabah({Key? key}) : super(key: key);
+  const PerNasabah({super.key});
 
   @override
   State<PerNasabah> createState() => _PerNasabahState();
@@ -224,7 +222,7 @@ class _PerNasabahState extends State<PerNasabah> {
 }
 
 class PerKategori extends StatefulWidget {
-  const PerKategori({Key? key}) : super(key: key);
+  const PerKategori({super.key});
 
   @override
   State<PerKategori> createState() => _PerKategoriState();
@@ -338,7 +336,7 @@ class _PerKategoriState extends State<PerKategori> {
 }
 
 class PerBulan extends StatefulWidget {
-  const PerBulan({Key? key}) : super(key: key);
+  const PerBulan({super.key});
 
   @override
   State<PerBulan> createState() => _PerBulanState();
@@ -420,7 +418,7 @@ class _PerBulanState extends State<PerBulan> {
 }
 
 class PilihPeriode extends StatefulWidget {
-  const PilihPeriode({Key? key}) : super(key: key);
+  const PilihPeriode({super.key});
 
   @override
   State<PilihPeriode> createState() => _PilihPeriodeState();
@@ -496,3 +494,4 @@ class _PilihPeriodeState extends State<PilihPeriode> {
     );
   }
 }
+
