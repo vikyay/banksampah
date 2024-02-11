@@ -122,12 +122,12 @@ class DashboardDetailx extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: (MediaQuery.of(context).size.height / 2) - 185.0,
+                top: (MediaQuery.of(context).size.height / 2) - 150.0,
                 left: (MediaQuery.of(context).size.width / 2) - 25.0,
                 child: const Image(
                   image: AssetImage('assets/trashcan.png'),
                   fit: BoxFit.cover,
-                  height: 200.0,
+                  height: 150.0,
                 ),
               ),
               Padding(
@@ -247,11 +247,14 @@ class DashboardDetail extends StatefulWidget {
 
 class _DashboardDetailState extends State<DashboardDetail> {
   List<Map<String, dynamic>> _pengaturan = [];
+  bool _isLoading = true;
+
   //ambil daftar nama
   void _refreshPengaturan() async {
     final data = await SQLHelper.getPengaturan();
     setState(() {
       _pengaturan = data;
+      _isLoading = false;
     });
   }
   @override
@@ -264,8 +267,12 @@ class _DashboardDetailState extends State<DashboardDetail> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: ListView(
-        physics: const NeverScrollableScrollPhysics(),
+      child: _isLoading
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
+          : ListView(
+        // physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
           Stack(
             children: <Widget>[

@@ -127,7 +127,7 @@ class _DetilSetoranState extends State<DetilSetoran> {
         bottomNavigationBar: BottomAppBar(
           color: Colors.amberAccent,
           child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
                   IconButton(
                     iconSize: 40,
@@ -142,7 +142,9 @@ class _DetilSetoranState extends State<DetilSetoran> {
                       Text(widget.tgl.toString()),
                     ],
                   ),
-                  Padding(padding: EdgeInsets.fromLTRB(40.0, 0, 0, 0), child: Ink(
+                  Expanded(
+                      flex: 0,
+                      child: Ink(
                     decoration: const ShapeDecoration(
                       color: Colors.white,
                       shape: CircleBorder(),
@@ -157,10 +159,14 @@ class _DetilSetoranState extends State<DetilSetoran> {
                         FileHandleApi.openFile(pdfFile);
                       },
                     ),
-                  ) ),
+                  )),
                 ]),
         ),
-        body: Center(
+        body: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Center(
             child:
             ListView.builder(
               itemCount: _DaftarKategori.length,
