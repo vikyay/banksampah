@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../database/sql_helper.dart';
-import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../bantuan/bantuan.dart';
 import 'screens.dart';
 
 class DetilSetoran extends StatefulWidget {
   const DetilSetoran({Key? key, required this.nama, required this.tgl, required this.tglsetor_id}) : super(key: key);
+
   final String nama;
   final String tgl;
   final int tglsetor_id;
@@ -14,17 +14,31 @@ class DetilSetoran extends StatefulWidget {
   State<DetilSetoran> createState() => _DetilSetoranState();
 }
 class _DetilSetoranState extends State<DetilSetoran> {
-  List<Map<String, dynamic>> _journals = [];
+  List<Map<String, dynamic>> _nasabah = [];
   List<Map<String, dynamic>> _DaftarKategori = [];
   List<Map<String, dynamic>> _DaftarSubKategori = [];
   List<Map<String, dynamic>> _DaftarSetoran = [];
+  num total = 0;
   bool _isLoading = true;
 
+
   //nama
-  void _refreshJournals() async {
-    final data = await SQLHelper.getItems();
+  void _buatPDFnasabah(int idtglsetor) async {
+    final data = await SQLHelper.getSetoranBuatPDF(idtglsetor);
+    final wkt = widget.tgl.split(' - ').first;
+    total = 0;
+    data.forEach((e) {total = total + e.elementAt(4);});
+    // generate pdf file
+    final pdfFile = await PerNasabahPDF.generate(data, total, widget.nama, wkt);
+    // opening the pdf file
+    FileHandleApi.openFile(pdfFile);
+  }
+
+  //nama
+  void _refreshNasabah() async {
+    final data = await SQLHelper.getNasabah();
     setState(() {
-      _journals = data;
+      _nasabah = data;
       _isLoading = false;
     });
   }
@@ -61,15 +75,15 @@ class _DetilSetoranState extends State<DetilSetoran> {
     _refreshDaftarKategori(); // Load ketika mulai
     _refreshDaftarSubKategori(); // Load ketika mulai
     _refreshDaftarSetoran(); // Load ketika mulai
-    _refreshJournals();
+    _refreshNasabah();
   }
 
   // Update setoran
-  Future<void> _updateSetoran(int idpenyetor, int idsubkategori, int jumlah) async {
+  Future<void> _updateSetoran(int tglsetor_id, int idsubkategori, int jumlah) async {
     await SQLHelper.updateSetoran(
-        idpenyetor, idsubkategori, jumlah);
-    _refreshDaftarKategori(); // Load ketika mulai
-    _refreshDaftarSubKategori(); // Load ketika mulai
+        tglsetor_id, idsubkategori, jumlah);
+    _refreshDaftarKategori();
+    _refreshDaftarSubKategori();
   }
 
   Widget build(BuildContext context) {
@@ -153,10 +167,8 @@ class _DetilSetoranState extends State<DetilSetoran> {
                       icon: const FaIcon(FontAwesomeIcons.print,
                           color: Colors.black87),
                       onPressed: () async {
-                        // generate pdf file
-                        final pdfFile = await PerNasabahPDF.generate();
-                        // opening the pdf file
-                        FileHandleApi.openFile(pdfFile);
+                        _buatPDFnasabah(widget.tglsetor_id);
+
                       },
                     ),
                   )),
@@ -224,7 +236,7 @@ class _DetilSetoranState extends State<DetilSetoran> {
                             jumlah =
                                 (list_jumlah.single.values.elementAt(3).toString());
                           }
-                          ;
+
                           return ListTile(
                             title: Text(teks_subkategori),
                             trailing:
@@ -240,13 +252,7 @@ class _DetilSetoranState extends State<DetilSetoran> {
                                   textAlign: TextAlign.right,
                                   initialValue: jumlah,
                                   onChanged: (text) => _updateSetoran(
-                                      _journals
-                                          .elementAt(_DaftarSetoran.elementAt(
-                                          widget.tglsetor_id)
-                                          .values
-                                          .elementAt(1))
-                                          .values
-                                          .elementAt(0),
+                                      widget.tglsetor_id,
                                       int.parse(id_subkategori),
                                       int.parse(text)),
                                 ),
@@ -264,7 +270,6 @@ class _DetilSetoranState extends State<DetilSetoran> {
                 );
           },
             )
-
         )
     );
   }

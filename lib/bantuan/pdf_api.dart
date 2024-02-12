@@ -286,7 +286,8 @@ class PdfInvoiceApi {
 }
 
 class PerNasabahPDF {
-  static Future<File> generate() async {
+  static Future<File> generate(List<List<dynamic>> daftardata, num total, nama, tgl) async {
+    // print(daftardata);
     final pdf = pw.Document();
 
     final iconImage =
@@ -554,14 +555,14 @@ class PerNasabahPDF {
                       ),
                     ),
                     pw.Text(
-                      'Yanti',
+                      nama,
                       style: const pw.TextStyle(
                         fontSize: 15.0,
                         color: PdfColors.grey700,
                       ),
                     ),
                     pw.Text(
-                      '26 Januari 2024',
+                      tgl,
                       style: const pw.TextStyle(
                         fontSize: 12.0,
                         color: PdfColors.grey700,
@@ -602,7 +603,7 @@ class PerNasabahPDF {
             ///
             pw.TableHelper.fromTextArray(
               headers: tableHeaders,
-              data: tableData4,
+              data: daftardata,
               border: null,
               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               headerDecoration:
@@ -676,7 +677,7 @@ class PerNasabahPDF {
                               ),
                             ),
                             pw.Text(
-                              'Rp 5.000',
+                              'Rp. ${total}',
                               style: pw.TextStyle(
                                 fontWeight: pw.FontWeight.bold,
                               ),

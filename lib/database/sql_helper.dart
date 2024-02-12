@@ -19,20 +19,20 @@ class SQLHelper {
         idkategori INTEGER NOT NULL,
         subkategori TEXT NOT NULL,
         satuan TEXT NOT NULL,
-        hargapersatuan INT NOT NULL 
+        hargapersatuan REAL NOT NULL 
       )
       """);
     await database.execute("""CREATE TABLE setoran(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         idtglsetor INTEGER NOT NULL,
         idsubkategori INTEGER NOT NULL,
-        jumlah INTEGER NOT NULL
+        jumlah REAL NOT NULL
       )  
       """);
     await database.execute("""CREATE TABLE tglsetor(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         idpenyetor INTEGER NOT NULL,
-        createdAt TIMESTAMP NOT NULL
+        createdAt TEXT NOT NULL
       )  
       """);
     await database.execute("""CREATE TABLE pengaturan(
@@ -48,26 +48,51 @@ class SQLHelper {
         (4, 'contactperson', 'Evi (085111111xxx)');
       """);
     await database.rawInsert("""INSERT INTO tglsetor (id, idpenyetor, createdAt) VALUES
-        (1, 1, '2024-01-20 07:00'),
-        (2, 2, '2024-01-21 08:12'),
-        (3, 3, '2024-01-22 09:28'),
-        (4, 4, '2024-01-23 09:30'),
-        (5, 5, '2024-01-23 09:42'),
-        (6, 6, '2024-01-24 13:11'),
-        (7, 7, '2024-01-24 07:22'),
-        (8, 8, '2024-01-25 19:08'),
-        (9, 9, '2024-01-25 19:38'),
-        (10, 1, '2024-01-26 12:12'),
-        (11, 2, '2024-01-29 16:05');
+        (1, 1, '2024-01-20 07:00:00'),
+        (2, 2, '2024-01-21 08:12:00'),
+        (3, 3, '2024-01-22 09:28:00'),
+        (4, 4, '2024-01-23 09:30:00'),
+        (5, 5, '2024-01-23 09:42:00'),
+        (6, 6, '2024-01-24 13:11:00'),
+        (7, 7, '2024-01-24 07:22:00'),
+        (8, 8, '2024-01-25 19:08:00'),
+        (9, 9, '2024-01-25 19:38:00'),
+        (10, 1, '2024-01-26 12:12:00'),
+        (11, 2, '2024-01-29 16:05:00');
       """);
     await database.rawInsert("""INSERT INTO setoran (id, idtglsetor, idsubkategori, jumlah) VALUES
-        (1, 1, 3, 100),
-        (2, 1, 4, 550),
-        (3, 2, 4, 120),
-        (4, 2, 12, 300),
-        (5, 3, 1, 100),
-        (6, 4, 2, 120),
-        (7, 5, 7, 130);
+        (1, 1, 1, 135.0),
+        (2, 1, 2, 298.0),
+        (3, 1, 3, 470.0),
+        (4, 1, 4, 321.0),
+        (5, 1, 5, 405.0),
+        (6, 1, 6, 372.0),
+        (7, 1, 7, 334.0),
+        (8, 1, 8, 228.0),
+        (9, 2, 1, 357.0),
+        (10, 2, 2, 319.0),
+        (11, 2, 3, 278.0),
+        (12, 2, 4, 369.0),
+        (13, 2, 5, 150.0),
+        (14, 2, 6, 388.0),
+        (15, 2, 7, 118.0),
+        (16, 3, 1, 136.0),
+        (17, 3, 2, 253.0),
+        (18, 3, 3, 124.0),
+        (19, 3, 4, 233.0),
+        (20, 3, 5, 224.0),
+        (21, 3, 6, 419.0),
+        (22, 3, 7, 304.0),
+        (23, 3, 8, 227.0),
+        (24, 3, 9, 154.0),
+        (25, 4, 1, 201.0),
+        (26, 4, 2, 463.0),
+        (27, 4, 3, 181.0),
+        (28, 4, 4, 258.0),
+        (29, 4, 5, 489.0),
+        (30, 4, 6, 324.0),
+        (31, 4, 7, 387.0),
+        (32, 4, 8, 190.0);
       """);
     await database.rawInsert("""INSERT INTO penyetor (id, nama, description) VALUES
         (1, 'Ayu', 'CSJ 1'),
@@ -96,47 +121,47 @@ class SQLHelper {
         (12, 'Impact');
       """);
     await database.rawInsert("""INSERT INTO daftarsubkategori (id, idkategori, subkategori, satuan, hargapersatuan) VALUES
-        (1, 1, 'Besi', 'Kg', 0),
-        (2, 1, 'Tembaga', 'Kg', 11000),
-        (3, 1, 'Aluminium', 'Kg', 0),
-        (4, 1, 'Babet/Kran', 'Kg', 0),
-        (5, 1, 'Kaleng', 'Kg', 2000),
-        (6, 1, 'Seng/Kawat', 'Kg', 1000),
-        (7, 2, 'PE (Plastik Putih)', 'Kg', 0),
-        (8, 2, 'PVC (Paralon)', 'Kg', 0),
-        (9, 2, 'Asoy (Plastik Bekas)', 'Kg', 250),
-        (10, 2, 'Botol Putih (Bodong Bersih)', 'Kg', 3500),
-        (11, 2, 'Botol Warna (Bodong Warna)', 'Kg', 900),
-        (12, 2, 'Gelas Mineral (Bersih)', 'Kg', 0),
-        (13, 2, 'Gelas Mineral (Kotor)', 'Kg', 0),
-        (14, 2, 'Gelas Mineral (Warna)', 'Kg', 0),
-        (15, 2, 'Tutup Botol', 'Kg', 2500),
-        (16, 2, 'Tutup Galon', 'Kg', 4000),
-        (17, 2, 'Emberan', 'Kg', 1500),
-        (18, 2, 'Kabin', 'Kg', 0),
-        (19, 2, 'Botol Kotor', 'Kg', 0),
-        (20, 2, 'Ember Hitam/Pot', 'Kg', 0),
-        (21, 3, 'Putihan/HVS', 'Kg', 1600),
-        (22, 3, 'Majalah', 'Kg', 0),
-        (23, 3, 'Buku Kotor', 'Kg', 1200),
-        (24, 3, 'Koran', 'Kg', 0),
-        (25, 3, 'Karton/Boncos', 'Kg', 400),
-        (26, 3, 'Kardus', 'Kg', 1200),
-        (27, 3, 'Duplek', 'Kg', 0),
-        (28, 3, 'Karung Semen', 'Kg', 0),
-        (29, 3, 'Kertas Buram', 'Kg', 0),
-        (30, 4, 'Botol/Beling', 'Kg', 250),
-        (31, 4, 'Beling Pecah', 'Kg', 0),
-        (32, 5, 'Kristal', 'Kg', 3000),
-        (33, 5, 'Keping CD/DVD', 'Kg', 0),
-        (34, 5, 'Toples Tipis', 'Kg', 0),
-        (35, 6, 'Galon LeMinerale', 'Buah', 2800),
+        (1, 1, 'Besi', 'gram', 0),
+        (2, 1, 'Tembaga', 'gram', 11),
+        (3, 1, 'Aluminium', 'gram', 0),
+        (4, 1, 'Babet/Kran', 'gram', 0),
+        (5, 1, 'Kaleng', 'gram', 2),
+        (6, 1, 'Seng/Kawat', 'gram', 1),
+        (7, 2, 'PE (Plastik Putih)', 'gram', 0),
+        (8, 2, 'PVC (Paralon)', 'gram', 0),
+        (9, 2, 'Asoy (Plastik Bekas)', 'gram', 0.25),
+        (10, 2, 'Botol Putih (Bodong Bersih)', 'gram', 3.5),
+        (11, 2, 'Botol Warna (Bodong Warna)', 'gram', 0.9),
+        (12, 2, 'Gelas Mineral (Bersih)', 'gram', 0),
+        (13, 2, 'Gelas Mineral (Kotor)', 'gram', 0),
+        (14, 2, 'Gelas Mineral (Warna)', 'gram', 0),
+        (15, 2, 'Tutup Botol', 'gram', 2.5),
+        (16, 2, 'Tutup Galon', 'gram', 4),
+        (17, 2, 'Emberan', 'gram', 1.5),
+        (18, 2, 'Kabin', 'gram', 0),
+        (19, 2, 'Botol Kotor', 'gram', 0),
+        (20, 2, 'Ember Hitam/Pot', 'gram', 0),
+        (21, 3, 'Putihan/HVS', 'gram', 1.6),
+        (22, 3, 'Majalah', 'gram', 0),
+        (23, 3, 'Buku Kotor', 'gram', 1.2),
+        (24, 3, 'Koran', 'gram', 0),
+        (25, 3, 'Karton/Boncos', 'gram', 0.4),
+        (26, 3, 'Kardus', 'gram', 1.2),
+        (27, 3, 'Duplek', 'gram', 0),
+        (28, 3, 'Karung Semen', 'gram', 0),
+        (29, 3, 'Kertas Buram', 'gram', 0),
+        (30, 4, 'Botol/Beling', 'gram', 0.25),
+        (31, 4, 'Beling Pecah', 'gram', 0),
+        (32, 5, 'Kristal', 'gram', 3),
+        (33, 5, 'Keping CD/DVD', 'gram', 0),
+        (34, 5, 'Toples Tipis', 'gram', 0),
+        (35, 6, 'Galon LeMinerale', 'Buah', 2.8),
         (36, 7, 'Styrofoam', 'Buah', 0),
-        (37, 8, 'Jelantah', 'Kg', 5500),
-        (38, 9, 'Sepatu', 'Kg', 0),
-        (39, 10, 'Aki Mobil', 'Kg', 0),
-        (40, 11, 'Karpet', 'Kg', 0),
-        (41, 12, 'Impact', 'Kg', 0);
+        (37, 8, 'Jelantah', 'gram', 5.5),
+        (38, 9, 'Sepatu', 'gram', 0),
+        (39, 10, 'Aki Mobil', 'gram', 0),
+        (40, 11, 'Karpet', 'gram', 0),
+        (41, 12, 'Impact', 'gram', 0);
       """);
   }
 // id: the id of a item
@@ -153,14 +178,6 @@ class SQLHelper {
     );
   }
 
-  // tambah tglsetor
-  static Future<int> createItem(int idpenyetor) async {
-    final db = await SQLHelper.db();
-    final data = {'idpenyetor': idpenyetor, 'createdAt': DateTime.now().toString()};
-    final id = await db.insert('tglsetor', data,
-        conflictAlgorithm: sql.ConflictAlgorithm.replace);
-    return id;
-  }
 
   // // Create new item (journal)
   // static Future<int> createItem(String nama, String? descrption) async {
@@ -216,6 +233,41 @@ class SQLHelper {
     final db = await SQLHelper.db();
     return db.query('tglsetor', orderBy: "createdAt");
   }
+
+  // Ambil setoran utk print pdf dari pegawai
+  static Future<List<List<dynamic>>> getSetoranBuatPDF(int idtglsetor) async {
+    final db = await SQLHelper.db();
+    //setoran
+    List<Map<String, dynamic>> setoran = [];
+    // setoran = await db.query('setoran', orderBy:'idsubkategori', where: '$idtglsetor = ?', whereArgs: [idtglsetor]);
+    setoran = await db.rawQuery(
+        'SELECT * FROM setoran WHERE idtglsetor=?',
+        [idtglsetor]);
+    //subkategori
+    List<Map<String, dynamic>> subkategori = [];
+    subkategori = await db.query('daftarsubkategori', orderBy:'id');
+    //kategori
+    List<Map<String, dynamic>> kategori = [];
+    kategori = await db.query('daftarkategori', orderBy:'id');
+    //gabung
+    List<List<dynamic>> njajal = [];
+    setoran.forEach((e) {
+      njajal.addAll([[subkategori.firstWhere((element) => element.values.elementAt(0) == e.values.elementAt(2)).values.elementAt(2),
+        kategori.firstWhere((element) => element.values.elementAt(0) == subkategori.firstWhere((element) => element.values.elementAt(0) == e.values.elementAt(2)).values.elementAt(1)).values.elementAt(1),
+        subkategori.firstWhere((element) => element.values.elementAt(0) == e.values.elementAt(2)).values.elementAt(3),
+        e.values.elementAt(3),
+        e.values.elementAt(3) * subkategori.firstWhere((element) => element.values.elementAt(0) == e.values.elementAt(2)).values.elementAt(4)
+        ]]);
+    });
+    // setoran = [];
+
+    return njajal;
+  }
+
+
+
+
+
 
   // Read a single item by id
   // The app doesn't use this method but I put here in case you want to see it
@@ -293,6 +345,20 @@ class SQLHelper {
     await db.insert('penyetor', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
   }
 
+  static Future<void> tambahTglSetor(int? idpenyetor, String createdAt) async {
+    final db = await SQLHelper.db();
+    final data = {
+      'idpenyetor': idpenyetor,
+      'createdAt': createdAt,
+    };
+    // print(idpenyetor.toString());
+    // print(createdAt);
+    if (idpenyetor!=null)  {
+      await db.insert('tglsetor', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    }
+
+  }
+
   static Future<void> hapusNasabah(int id) async {
     final db = await SQLHelper.db();
     try {
@@ -319,6 +385,7 @@ class SQLHelper {
       debugPrint("Terjadi kesalahan ketika menghapus...: $err");
     }
   }
+
 
 }
 

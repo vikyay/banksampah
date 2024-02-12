@@ -3,7 +3,6 @@ import '../database/sql_helper.dart';
 import 'package:intl/intl.dart';
 import 'detilsetoran.dart';
 import 'info.dart';
-import '../bantuan/bantuan.dart';
 
 void daftar() {
   runApp(const MaterialApp(
@@ -24,9 +23,49 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
   List<Map<String, dynamic>> _daftarsetoran = [];
   String? textkategori;
   String? textnasabah;
+  int idterpilih=0;
+  int? terpilih;
 
-  final TextEditingController _nama = TextEditingController();
-  final TextEditingController _description = TextEditingController();
+  //tanggal dan waktu
+  final TextEditingController _tglmulai = TextEditingController(text: DateFormat('yyyy-MM-dd').format(DateTime.now()).toString());
+  final TextEditingController _wktmulai = TextEditingController(text: '${TimeOfDay.now().hour.toString().padLeft(2, '0')}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}:00');
+
+  //waktu
+  Future<void> _selectTime(BuildContext context, TextEditingController kont) async {
+    final TimeOfDay? waktu = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (waktu != null) {
+      setState(() {
+        kont.text = '${waktu.hour.toString().padLeft(2, '0')}:${waktu.minute.toString().padLeft(2, '0')}:00';
+      });
+    }
+  }
+  //tanggal
+  Future<void> _selectDate(BuildContext context, TextEditingController kont) async {
+    final DateTime? tanggal = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2099),
+    );
+    if (tanggal != null) {
+      setState(() {
+        kont.text = DateFormat('yyyy-MM-dd').format(tanggal).toString();
+      });
+    }
+  }
+
+
+  //ambil daftar nasabah
+  void _refreshNasabah() async {
+    final data = await SQLHelper.getNasabah();
+    setState(() {
+      _nasabah = data;
+    });
+  }
+
 
   //tambah setoran
   Future<void> _tambahSetoran(BuildContext context) async {
@@ -40,46 +79,91 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
         builder: (BuildContext context, setStateSB) {
           return AlertDialog(
             title: const Text('Tambah Setoran'),
-            content: SingleChildScrollView(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            //valueText = value;
-                            // print(value);
-                          });
-                        },
-                        controller: _nama,
-                        decoration: const InputDecoration(hintText: "Nama"),
-                      ),
-                      SelectDate(),
-
-                    ])),
+            content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setStateSB) {
+                return SingleChildScrollView(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          DropdownButton<int>(
+                            isExpanded:true,
+                            value: terpilih,
+                            hint: const Text('Pilih nasabah...'),
+                            items: daftardropdown.asMap().entries.map((entry) {
+                              return DropdownMenuItem<int>(
+                                value: entry.key,
+                                child: Text(entry.value),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setStateSB(() {
+                                terpilih = value;
+                                if(terpilih!=null){
+                                  idterpilih = terpilih?.toInt() ?? 0;
+                                }
+                              });
+                            },
+                          ),
+                          Row(children: [
+                            Expanded(
+                                child: TextField(
+                                  readOnly: true,
+                                  controller: _tglmulai,
+                                )),
+                            Expanded(
+                                flex: 0,
+                                child: IconButton(
+                                  icon: const Icon(Icons.date_range),
+                                  onPressed: () {
+                                    _selectDate(context, _tglmulai);
+                                  },
+                                )),
+                            Expanded(
+                                child: TextField(
+                                  readOnly: true,
+                                  controller: _wktmulai,
+                                )),
+                            Expanded(
+                                flex: 0,
+                                child: IconButton(
+                                  icon: const Icon(Icons.access_time),
+                                  onPressed: () {
+                                    _selectTime(context, _wktmulai);
+                                  },
+                                ))
+                          ]),
+                        ]));
+              },
+            ),
             actions: <Widget>[
-              MaterialButton(
-                color: Colors.red,
-                textColor: Colors.white,
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                ),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
                 child: const Text('BATAL'),
-                onPressed: () {
-                  setState(() {
-                    //codeDialog = valueText;
-                    Navigator.pop(context);
-                  });
-                },
               ),
-              MaterialButton(
-                color: Colors.green,
-                textColor: Colors.white,
-                child: const Text('OK'),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.lightGreen,
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                ),
                 onPressed: () {
-                  SQLHelper.tambahNasabah(_nama.text, _description.text);
-                  // _refreshNasabah();
+                  SQLHelper.tambahTglSetor(idterpilih+1, '${_tglmulai.text} ${_wktmulai.text}');
                   setState(() {
+                    _refresh();
                     Navigator.pop(context);
+
                   });
                 },
+                child: const Text('OK'),
               ),
             ],
           );
@@ -114,11 +198,16 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
   void initState() {
     super.initState();
     //load ketika mulai
+    _refreshNasabah();
     _refresh();
   }
 
   @override
   Widget build(BuildContext context) {
+    List<String> drop = [];
+    _nasabah.forEach((element) {
+      drop.add(element['nama']);
+    });
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.lightGreen,
@@ -164,7 +253,7 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
               decoration: const ShapeDecoration(
                 shape: CircleBorder(),
               ),
-              child: InfoDaftarSetoran(),
+              child: const InfoDaftarSetoran(),
             ))
 
           ],
@@ -205,8 +294,8 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                     background: Container(
                       alignment: Alignment.centerLeft,
                       color: Colors.red,
-                      child: Center(
-                        child: const Row(children: [
+                      child: const Center(
+                        child: Row(children: [
                           Icon(Icons.delete),
                         ]),
                       ),
@@ -215,10 +304,10 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                     secondaryBackground: Container(),
                     child:
                       ListTile(
-                        leading: Icon(Icons.receipt),
+                        leading: const Icon(Icons.receipt),
                         title: Text(_daftarsetoran[index]['penyetor']),
                         subtitle: Text(_daftarsetoran[index]['createdAt']),
-                        trailing: Icon(Icons.chevron_right),
+                        trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -228,13 +317,9 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                           );
                         },
                       ),
-
                   )
-
-
               );
             })
-
     );
   }
 }
