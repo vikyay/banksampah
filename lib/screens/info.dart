@@ -10,7 +10,13 @@ class InfoDetilSetoran extends StatelessWidget {
       children: <Widget>[
         IconButton(
           icon: const FaIcon(FontAwesomeIcons.info,
-              color: Colors.black87),
+              color: Colors.white,
+              shadows: <Shadow>[
+                Shadow(
+                    color: Colors.black,
+                    blurRadius: 5.0,
+                    offset: Offset(0, 1))
+              ]),
           onPressed: () => showDialog<String>(
             context: context,
             builder: (BuildContext context) => Dialog(
@@ -98,7 +104,14 @@ class InfoDaftarSetoran extends StatelessWidget {
       children: <Widget>[
         IconButton(
           icon: const FaIcon(FontAwesomeIcons.info,
-              color: Colors.black87),
+              color: Colors.white,
+            shadows: <Shadow>[
+              Shadow(
+                  color: Colors.black,
+                  blurRadius: 5.0,
+                  offset: Offset(0, 1))
+            ],
+          ),
           onPressed: () => showDialog<String>(
             context: context,
             builder: (BuildContext context) => Dialog(
@@ -136,7 +149,13 @@ class InfoPengaturan extends StatelessWidget {
       children: <Widget>[
         IconButton(
           icon: const FaIcon(FontAwesomeIcons.info,
-              color: Colors.white),
+              color: Colors.white,
+              shadows: <Shadow>[
+                Shadow(
+                    color: Colors.black,
+                    blurRadius: 5.0,
+                    offset: Offset(0, 1))
+              ]),
           onPressed: () => showDialog<String>(
             context: context,
             builder: (BuildContext context) => Dialog(

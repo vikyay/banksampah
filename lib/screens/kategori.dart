@@ -63,7 +63,7 @@ class _KategoriState extends State<Kategori> {
                     shadows: <Shadow>[
                       Shadow(
                         offset: Offset(0.0, 1.0),
-                        blurRadius: 1.0,
+                        blurRadius: 5.0,
                         color: Color.fromARGB(255, 0, 0, 0),
                       ),
                     ],

@@ -21,8 +21,7 @@ class _DetilSetoranState extends State<DetilSetoran> {
   num total = 0;
   bool _isLoading = true;
 
-
-  //nama
+  //buatpdf
   void _buatPDFnasabah(int idtglsetor) async {
     final data = await SQLHelper.getSetoranBuatPDF(idtglsetor);
     final wkt = widget.tgl.split(' - ').first;
@@ -103,7 +102,7 @@ class _DetilSetoranState extends State<DetilSetoran> {
                     shadows: <Shadow>[
                       Shadow(
                         offset: Offset(1, 0.5),
-                        // blurRadius: 1.0,
+                        blurRadius: 5.0,
                         color: Color.fromARGB(150, 255, 255, 255),
                       ),
                     ],
@@ -118,7 +117,7 @@ class _DetilSetoranState extends State<DetilSetoran> {
                     shadows: <Shadow>[
                       Shadow(
                         offset: Offset(0.0, 1.0),
-                        blurRadius: 1.0,
+                        blurRadius: 5.0,
                         color: Color.fromARGB(255, 0, 0, 0),
                       ),
                     ],
@@ -168,7 +167,6 @@ class _DetilSetoranState extends State<DetilSetoran> {
                           color: Colors.black87),
                       onPressed: () async {
                         _buatPDFnasabah(widget.tglsetor_id);
-
                       },
                     ),
                   )),

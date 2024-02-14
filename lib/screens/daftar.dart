@@ -104,7 +104,7 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                               });
                             },
                           ),
-                          Row(children: [
+                          Row(children:[
                             Expanded(
                                 child: TextField(
                                   readOnly: true,
@@ -118,6 +118,9 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                                     _selectDate(context, _tglmulai);
                                   },
                                 )),
+
+                          ]),
+                          Row(children: [
                             Expanded(
                                 child: TextField(
                                   readOnly: true,
@@ -131,7 +134,7 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                                     _selectTime(context, _wktmulai);
                                   },
                                 ))
-                          ]),
+                          ])
                         ]));
               },
             ),
@@ -156,7 +159,9 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                 ),
                 onPressed: () {
-                  SQLHelper.tambahTglSetor(idterpilih+1, '${_tglmulai.text} ${_wktmulai.text}');
+                  if(DateTime.tryParse('${_tglmulai.text} ${_wktmulai.text}') != null){
+                    SQLHelper.tambahTglSetor(idterpilih+1, DateTime.parse('${_tglmulai.text} ${_wktmulai.text}').toIso8601String());
+                  }
                   setState(() {
                     _refresh();
                     Navigator.pop(context);
@@ -177,12 +182,12 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
     final data1 = await SQLHelper.getTglSetor();
     final data2 = await SQLHelper.getNasabah();
     _daftarsetoran = [];
-    // data1.forEach((element) {_namanasabah.add(data2.firstWhere((e) => e['id'] == element['idpenyetor']).values.elementAt(1).toString());});
+    // data1.forEach((element) {_namanasabah.add(data2.firstWhere((e) => e['id'] == element['idnasabah']).values.elementAt(1).toString());});
     data1.forEach((e) {
       var daftar = {
         'id': e['id'],
-        'idpenyetor': e['idpenyetor'],
-        'penyetor': data2.firstWhere((el) => el['id'] == e['idpenyetor']).values.elementAt(1).toString(),
+        'idnasabah': e['idnasabah'],
+        'nasabah': data2.firstWhere((el) => el['id'] == e['idnasabah']).values.elementAt(1).toString(),
         'createdAt': DateFormat("EEEE, d MMMM yyyy - hh:MM", "id_ID")
             .format(DateTime.parse(e['createdAt'])),
       };
@@ -223,7 +228,7 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                     shadows: <Shadow>[
                       Shadow(
                         offset: Offset(1, 0.5),
-                        // blurRadius: 1.0,
+                        blurRadius: 5.0,
                         color: Color.fromARGB(150, 255, 255, 255),
                       ),
                     ],
@@ -238,7 +243,7 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                       shadows: <Shadow>[
                         Shadow(
                           offset: Offset(0.0, 1.0),
-                          blurRadius: 1.0,
+                          blurRadius: 5.0,
                           color: Color.fromARGB(255, 0, 0, 0),
                         ),
                       ],
@@ -249,13 +254,55 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
           ),
           centerTitle: true,
           actions: <Widget>[
-            Padding(padding: const EdgeInsets.only(right: 15), child: Ink(
+            Padding(padding: const EdgeInsets.only(right: 5), child: Ink(
               decoration: const ShapeDecoration(
                 shape: CircleBorder(),
               ),
-              child: const InfoDaftarSetoran(),
-            ))
-
+              child:
+              Row(children:[
+                Ink(
+                  decoration: const ShapeDecoration(
+                    shape: CircleBorder(),
+                  ),
+                  child:
+                  IconButton(
+                    icon: const Icon(
+                            Icons.sort,
+                            color: Colors.white,
+                            shadows: <Shadow>[
+                              Shadow(
+                                  color: Colors.black,
+                                  blurRadius: 5.0,
+                                  offset: Offset(0, 1))
+                            ],
+                          ),
+                          onPressed: () => showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => Dialog(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              const Text('This is a typical dialog.'),
+                              const SizedBox(height: 15),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const InfoDaftarSetoran(),
+              ])
+            )),
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -279,7 +326,7 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                   color: Colors.white,
                   child:
                   Dismissible(
-                    key: Key(_daftarsetoran[index]['penyetor']),
+                    key: Key(_daftarsetoran[index]['nasabah']),
                     confirmDismiss: (direction) async {
                       setState(() {
                         SQLHelper.hapusTglSetor(_daftarsetoran[index]['id']);
@@ -305,14 +352,14 @@ class _DaftarSetoranState extends State<DaftarSetoran> {
                     child:
                       ListTile(
                         leading: const Icon(Icons.receipt),
-                        title: Text(_daftarsetoran[index]['penyetor']),
+                        title: Text(_daftarsetoran[index]['nasabah']),
                         subtitle: Text(_daftarsetoran[index]['createdAt']),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetilSetoran(nama: _daftarsetoran[index]['penyetor'], tgl: _daftarsetoran[index]['createdAt'].toString(), tglsetor_id: _daftarsetoran[index]['id']),
+                              builder: (context) => DetilSetoran(nama: _daftarsetoran[index]['nasabah'], tgl: _daftarsetoran[index]['createdAt'].toString(), tglsetor_id: _daftarsetoran[index]['id']),
                             ),
                           );
                         },
