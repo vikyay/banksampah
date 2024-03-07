@@ -101,7 +101,7 @@ class _LaporanState extends State<Laporan> {
               decoration: const ShapeDecoration(
                 shape: CircleBorder(),
               ),
-              child: const InfoDaftarSetoran(),
+              child: const InfoLaporan(),
             ))
 
           ],
@@ -316,7 +316,9 @@ class _PerNasabahState extends State<PerNasabah> {
     final data = await SQLHelper.buatlaporanPDF(nasabahterpilih, kategoriterpilih, mulai, selesai);
     //total
     total = 0;
-    data.forEach((e) {total = total + e.elementAt(4);});
+
+    data.forEach((e) {
+      total = total + e.elementAt(4);});
     //wkt
     String wkt='${DateFormat('dd MMM yyyy').format(DateTime.parse(mulai)).toString()} - ${DateFormat('dd MMM yyyy').format(DateTime.parse(selesai)).toString()}';
 
@@ -328,21 +330,21 @@ class _PerNasabahState extends State<PerNasabah> {
     }
     else{
       if(nasabahterpilih!=null && kategoriterpilih==null){
-        judul='LAPORAN';
-        subjudul='${_nasabah[nasabahterpilih]['nama'].toString()} /nSemua Kategori';
+        judul=_nasabah[nasabahterpilih]['nama'].toString();
+        subjudul='Semua Kategori';
         final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
         FileHandleApi.openFile(pdfFile);
       }
       else{
         if(nasabahterpilih==null && kategoriterpilih!=null){
-          judul='LAPORAN';
+          judul='Semua Nasabah';
           subjudul='Kategori ${_kategori[kategoriterpilih]['kategori'].toString()}';
           final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
           FileHandleApi.openFile(pdfFile);
         }
         else{
           if(nasabahterpilih==null && kategoriterpilih==null){
-            judul='LAPORAN';
+            judul='Semua Nasabah';
             subjudul='Semua Kategori';
             final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
             FileHandleApi.openFile(pdfFile);
@@ -645,21 +647,21 @@ class _PerKategoriState extends State<PerKategori> {
     }
     else{
       if(nasabahterpilih!=null && kategoriterpilih==null){
-        judul='LAPORAN';
-        subjudul='${_nasabah[nasabahterpilih]['nama'].toString()} /nSemua Kategori';
+        judul=_nasabah[nasabahterpilih]['nama'].toString();
+        subjudul='Semua Kategori';
         final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
         FileHandleApi.openFile(pdfFile);
       }
       else{
         if(nasabahterpilih==null && kategoriterpilih!=null){
-          judul='LAPORAN';
+          judul='Semua Nasabah';
           subjudul='Kategori ${_kategori[kategoriterpilih]['kategori'].toString()}';
           final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
           FileHandleApi.openFile(pdfFile);
         }
         else{
           if(nasabahterpilih==null && kategoriterpilih==null){
-            judul='LAPORAN';
+            judul='Semua Nasabah';
             subjudul='Semua Kategori';
             final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
             FileHandleApi.openFile(pdfFile);
@@ -1190,21 +1192,21 @@ class _PilihPeriodeState extends State<PilihPeriode> {
     }
     else{
       if(nasabahterpilih!=null && kategoriterpilih==null){
-        judul='LAPORAN';
-        subjudul='${_nasabah[nasabahterpilih]['nama'].toString()} /nSemua Kategori';
+        judul=_nasabah[nasabahterpilih]['nama'].toString();
+        subjudul='Semua Kategori';
         final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
         FileHandleApi.openFile(pdfFile);
       }
       else{
         if(nasabahterpilih==null && kategoriterpilih!=null){
-          judul='LAPORAN';
+          judul='Semua Nasabah';
           subjudul='Kategori ${_kategori[kategoriterpilih]['kategori'].toString()}';
           final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
           FileHandleApi.openFile(pdfFile);
         }
         else{
           if(nasabahterpilih==null && kategoriterpilih==null){
-            judul='LAPORAN';
+            judul='Semua Nasabah';
             subjudul='Semua Kategori';
             final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
             FileHandleApi.openFile(pdfFile);

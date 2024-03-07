@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart' as sql;
+import 'package:intl/intl.dart';
 
 class SQLHelper {
   static Future<void> createTables(sql.Database database) async {
@@ -1741,7 +1742,23 @@ class SQLHelper {
     //   ]]);
     // });
 
-    return njajal;
+    List<List<dynamic>> datanjajal = [];
+    for (var i = 0; i < njajal.length; i++) {
+      if(datanjajal.isEmpty){datanjajal.insert(0, njajal[0]);}
+      else{
+        bool ada=false;
+        for (var j = 0; j < datanjajal.length; j++) {
+          if(njajal[i][0]==datanjajal[j][0] && njajal[i][1]==datanjajal[j][1]){
+            datanjajal[j][4]=datanjajal[j][4]+njajal[i][4];
+            ada=true;
+          }
+        }
+        if(ada==false){
+          datanjajal.insert(datanjajal.length, njajal[i]);
+        }
+      }
+    }
+    return datanjajal;
   }
 
 

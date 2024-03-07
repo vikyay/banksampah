@@ -77,7 +77,7 @@ class _KategoriState extends State<Kategori> {
               decoration: const ShapeDecoration(
                 shape: CircleBorder(),
               ),
-              child: InfoPengaturan(),
+              child: InfoKategori(),
             ))
 
           ],
