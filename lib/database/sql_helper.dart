@@ -42,9 +42,9 @@ class SQLHelper {
       )  
       """);
     await database.rawInsert("""INSERT INTO pengaturan (id, aturan, nilai) VALUES
-        (1, 'namabank', 'Bank Sampah CSJ'),
-        (2, 'alamat', 'Jalan Jombang Raya, Kel. Jombang, Kec. Ciputat, Kota Tangerang Selatan'),
-        (3, 'namalingkungan', 'Cluster Sudimara Jombang'),
+        (1, 'namabank', 'CSJ'),
+        (2, 'alamat', 'Jalan Jombang, Kel. Jombang, Kec. Ciputat, Kota Tangerang Selatan'),
+        (3, 'namalingkungan', 'Cluster Sudimara'),
         (4, 'contactperson', 'Evi (085111111xxx)');
       """);
     await database.rawInsert("""INSERT INTO tglsetor (id, idnasabah, createdAt) VALUES
@@ -1665,6 +1665,7 @@ class SQLHelper {
       });
     }
     else{
+      //per kategori
       if(idnasabah!=null && idkategori==null){
         //nasabah
         tglsetor = await db.rawQuery('SELECT * FROM tglsetor WHERE idnasabah=? AND (DATETIME(createdAt) BETWEEN DATETIME(?) AND DATETIME(?))', [idnasabah+1, mulai, selesai]);
@@ -1697,8 +1698,16 @@ class SQLHelper {
               {query = '$query OR idsubkategori=${e.values.elementAt(0).toString()}';}
             }
           });
-          query = 'SELECT * FROM setoran WHERE ($query) ORDER BY idsubkategori';
-          // print(query.toString());
+          setoran = await db.rawQuery('SELECT * FROM setoran WHERE ($query) ORDER BY idsubkategori');
+          setoran.forEach((e) {
+            njajal.addAll([
+              [subkategori.firstWhere((element) => element.values.elementAt(0) == e.values.elementAt(2)).values.elementAt(2),
+                kategori.firstWhere((element) => element.values.elementAt(0) == subkategori.firstWhere((element) => element.values.elementAt(0) == e.values.elementAt(2)).values.elementAt(1)).values.elementAt(1),
+                e.values.elementAt(3),
+                subkategori.firstWhere((element) => element.values.elementAt(0) == e.values.elementAt(2)).values.elementAt(3),
+                e.values.elementAt(3) * subkategori.firstWhere((element) => element.values.elementAt(0) == e.values.elementAt(2)).values.elementAt(4)
+              ]]);
+          });
         }
         else{
           //lengkap

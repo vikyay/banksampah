@@ -18,13 +18,13 @@ class Laporan extends StatefulWidget {
   State<Laporan> createState() => _LaporanState();
 }
 class _LaporanState extends State<Laporan> {
-  final List<Map<String, dynamic>> _nasabah = [];
+  // final List<Map<String, dynamic>> _nasabah = [];
   List<Map<String, dynamic>> _daftarsetoran = [];
   String? textkategori;
   String? textnasabah;
 
-  final TextEditingController _nama = TextEditingController();
-  final TextEditingController _description = TextEditingController();
+  // final TextEditingController _nama = TextEditingController();
+  // final TextEditingController _description = TextEditingController();
 
   //ambil data
   void _refresh() async {
@@ -633,41 +633,19 @@ class _PerKategoriState extends State<PerKategori> {
     final String subjudul;
     //data
     final data = await SQLHelper.buatlaporanPDF(nasabahterpilih, kategoriterpilih, mulai, selesai);
+
+
     //total
     total = 0;
     data.forEach((e) {total = total + e.elementAt(4);});
     //wkt
     String wkt='${DateFormat('dd MMM yyyy').format(DateTime.parse(mulai)).toString()} - ${DateFormat('dd MMM yyyy').format(DateTime.parse(selesai)).toString()}';
 
-    if(nasabahterpilih!=null && kategoriterpilih!=null){
-      judul=_nasabah[nasabahterpilih]['nama'].toString();
+    if(nasabahterpilih==null && kategoriterpilih!=null){
+      judul='Semua Nasabah';
       subjudul='Kategori ${_kategori[kategoriterpilih]['kategori'].toString()}';
       final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
       FileHandleApi.openFile(pdfFile);
-    }
-    else{
-      if(nasabahterpilih!=null && kategoriterpilih==null){
-        judul=_nasabah[nasabahterpilih]['nama'].toString();
-        subjudul='Semua Kategori';
-        final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
-        FileHandleApi.openFile(pdfFile);
-      }
-      else{
-        if(nasabahterpilih==null && kategoriterpilih!=null){
-          judul='Semua Nasabah';
-          subjudul='Kategori ${_kategori[kategoriterpilih]['kategori'].toString()}';
-          final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
-          FileHandleApi.openFile(pdfFile);
-        }
-        else{
-          if(nasabahterpilih==null && kategoriterpilih==null){
-            judul='Semua Nasabah';
-            subjudul='Semua Kategori';
-            final pdfFile = await BuatLaporanPDF.generate(data, judul, subjudul, wkt, total);
-            FileHandleApi.openFile(pdfFile);
-          }
-        }
-      }
     }
   }
 
@@ -878,13 +856,12 @@ class PerBulan extends StatefulWidget {
   State<PerBulan> createState() => _PerBulanState();
 }
 class _PerBulanState extends State<PerBulan> {
-  List<String> _bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  final List<String> _bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   final _tahun = List<String>.generate(20, (int index) => (DateTime.now().year - 1 + index).toString(), growable: false);
   String? bulan;
   String? tahun;
   int? bulanterpilih;
   int? tahunterpilih;
-
 
   List<Map<String, dynamic>> _nasabah = [];
   List<Map<String, dynamic>> _kategori = [];
@@ -918,53 +895,14 @@ class _PerBulanState extends State<PerBulan> {
     _refreshKategori();
   }
 
-  //tanggal dan waktu
-  final TextEditingController _tglmulai = TextEditingController(text: DateFormat('yyyy-MM-dd').format(DateTime.now()).toString());
-  final TextEditingController _wktmulai = TextEditingController(text: '${TimeOfDay.now().hour.toString().padLeft(2, '0')}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}:00');
-  final TextEditingController _tglselesai = TextEditingController(text: DateFormat('yyyy-MM-dd').format(DateTime.now()).toString());
-  final TextEditingController _wktselesai = TextEditingController(text: '${TimeOfDay.now().hour.toString().padLeft(2, '0')}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}:00');
-  //waktu
-  Future<void> _selectTime(BuildContext context, TextEditingController kont) async {
-    final TimeOfDay? waktu = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (waktu != null) {
-      setState(() {
-        kont.text = '${waktu.hour.toString().padLeft(2, '0')}:${waktu.minute.toString().padLeft(2, '0')}:00';
-      });
-    }
-  }
-  //tanggal
-  Future<void> _selectDate(BuildContext context, TextEditingController kont) async {
-    final DateTime? tanggal = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2099),
-    );
-    if (tanggal != null) {
-      setState(() {
-        kont.text = DateFormat('yyyy-MM-dd').format(tanggal).toString();
-      });
-    }
-  }
-
   //buatpdf
   num total = 0;
   void _buatPDF(int? bulanterpilih, int? tahunterpilih, String mulai, String selesai) async {
     final String judul;
     final String subjudul;
     //data
-
-    // print(((bulanterpilih?.toInt() ?? 0)+1).toString());
-    // print(_tahun.elementAt(tahunterpilih?.toInt() ?? 0).toString());
-
     mulai = DateTime(int.parse(_tahun.elementAt(tahunterpilih?.toInt() ?? 0)), int.parse(((bulanterpilih?.toInt() ?? 0)+1).toString()), 1).toIso8601String();
     selesai = DateTime(int.parse(_tahun.elementAt(tahunterpilih?.toInt() ?? 0)), int.parse(((bulanterpilih?.toInt() ?? 0)+2).toString()), 1).subtract(const Duration(days: 1)).toIso8601String();
-    print(mulai);
-    print(selesai);
-
     final data = await SQLHelper.buatlaporanPDF(null, null, mulai, selesai);
     //total
     total = 0;
